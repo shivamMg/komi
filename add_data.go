@@ -5,16 +5,15 @@ import (
 	"fmt"
 )
 
-func addCategory(catgr string) error {
-	c := category{Name: catgr}
-
-	jd, err := readJSONData()
-	if err != nil {
-		return err
+func addCategory(jd jsonData, catgr string) error {
+	if _, err := jd.getIndex(catgr); err == nil {
+		msg := fmt.Sprintf("Category named `%s` already exists", catgr)
+		return errors.New(msg)
 	}
 
-	jd.Categories = append(jd.Categories, c)
-	err = writeJSONData(jd)
+	jd.AddCategory(category{Name: catgr})
+
+	err := writeJSONData(jd)
 	if err != nil {
 		return err
 	}
@@ -22,24 +21,23 @@ func addCategory(catgr string) error {
 	return nil
 }
 
-func addCommand(catgr string) error {
-	jd, err := readJSONData()
+func addCommand(jd jsonData, catgr string) error {
+	index, err := jd.getIndex(catgr)
 	if err != nil {
 		return err
 	}
 
-	index := jd.getIndex(catgr)
-	if index == -1 {
-		msg := fmt.Sprintf("No such category as `%s`\n", catgr)
-		return errors.New(msg)
+	name, err := readInput("Command Name: ", false)
+	if err != nil {
+		return err
+	}
+	use, err := readInput("Use (opt): ", true)
+	if err != nil {
+		return err
 	}
 
-	name := readInput("Command Name: ")
-	use := readInput("Use: ")
+	jd.AddCommand(index, command{Name: name, Use: use})
 
-	com := command{Name: name, Use: use}
-
-	jd.Categories[index].Commands = append(jd.Categories[index].Commands, com)
 	err = writeJSONData(jd)
 	if err != nil {
 		return err

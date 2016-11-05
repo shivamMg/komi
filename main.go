@@ -4,12 +4,20 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli"
 )
 
 func main() {
+	jd, err := readJSONData()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
 	app := cli.NewApp()
+
 	app.EnableBashCompletion = true
 	app.Name = "komi"
 	app.Usage = "A simple command saver"
@@ -23,20 +31,15 @@ func main() {
 			Name:  "show",
 			Usage: "Show commands inside a category",
 			Action: func(c *cli.Context) error {
-				jd, err := readJSONData()
-				if err != nil {
-					return err
-				}
-
 				if c.NArg() == 0 {
 					displayCategories(jd)
 					return nil
 				}
 
 				catgr := c.Args().First()
-				err2 := displayCommands(jd, catgr, false, false)
-				if err2 != nil {
-					return err2
+				err = displayCommands(jd, catgr, false)
+				if err != nil {
+					return err
 				}
 
 				return nil
@@ -46,7 +49,7 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
 			},
 		},
 		{
@@ -58,7 +61,7 @@ func main() {
 				}
 
 				catgr := c.Args().First()
-				err := addCommand(catgr)
+				err := addCommand(jd, catgr)
 				return err
 			},
 			BashComplete: func(c *cli.Context) {
@@ -66,7 +69,7 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
 			},
 		},
 		{
@@ -78,7 +81,7 @@ func main() {
 				}
 
 				catgr := c.Args().First()
-				err := modifyCommand(catgr)
+				err := modifyCommand(jd, catgr)
 				return err
 			},
 			BashComplete: func(c *cli.Context) {
@@ -86,7 +89,7 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
 			},
 		},
 		{
@@ -98,7 +101,7 @@ func main() {
 				}
 
 				catgr := c.Args().First()
-				err := deleteCommand(catgr)
+				err := deleteCommand(jd, catgr)
 				return err
 			},
 			BashComplete: func(c *cli.Context) {
@@ -106,7 +109,7 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
 			},
 		},
 		{
@@ -114,11 +117,11 @@ func main() {
 			Usage: "Add a category",
 			Action: func(c *cli.Context) error {
 				if c.NArg() < 1 {
-					return errors.New("Please specify a category name")
+					return errors.New("Please specify category name")
 				}
 
 				catgr := c.Args().First()
-				err := addCategory(catgr)
+				err := addCategory(jd, catgr)
 				return err
 			},
 		},
@@ -131,7 +134,7 @@ func main() {
 				}
 
 				catgr := c.Args().First()
-				err := modifyCategory(catgr)
+				err := modifyCategory(jd, catgr)
 				return err
 			},
 			BashComplete: func(c *cli.Context) {
@@ -139,7 +142,7 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
 			},
 		},
 		{
@@ -151,7 +154,7 @@ func main() {
 				}
 
 				catgr := c.Args().First()
-				err := deleteCategory(catgr)
+				err := deleteCategory(jd, catgr)
 				return err
 			},
 			BashComplete: func(c *cli.Context) {
@@ -159,7 +162,60 @@ func main() {
 					return
 				}
 
-				printCategories()
+				jd.printCategories()
+			},
+		},
+		{
+			Name:  "export",
+			Usage: "Display all data in JSON",
+			Action: func(c *cli.Context) error {
+				err = displayJSONData(jd)
+
+				return err
+			},
+		},
+		{
+			Name:  "search",
+			Usage: "Search for a string inside data",
+			Action: func(c *cli.Context) error {
+				query := strings.Join(c.Args(), " ")
+				ignoreCase := c.Bool("ignore-case")
+				err := search(jd, query, ignoreCase)
+
+				return err
+			},
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "ignore-case, i",
+					Usage: "Ignore case for search query",
+				},
+			},
+		},
+		{
+			Name:  "copy",
+			Usage: "Copy a command or its use text",
+			Action: func(c *cli.Context) error {
+				if c.NArg() < 1 {
+					return errors.New("Please specify a category")
+				}
+
+				catgr := c.Args().First()
+				copyUse := c.Bool("copy-use")
+				err := copyCommand(jd, catgr, copyUse)
+				return err
+			},
+			BashComplete: func(c *cli.Context) {
+				if c.NArg() > 0 {
+					return
+				}
+
+				jd.printCategories()
+			},
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "copy-use, u",
+					Usage: "Copy Command's Use text",
+				},
 			},
 		},
 	}

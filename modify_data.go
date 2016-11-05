@@ -3,29 +3,25 @@ package main
 import (
 	"errors"
 	"fmt"
-	"strconv"
 )
 
-func modifyCategory(catgr string) error {
-	jd, err := readJSONData()
+func modifyCategory(jd jsonData, catgr string) error {
+	index, err := jd.getIndex(catgr)
 	if err != nil {
 		return err
 	}
 
-	index := jd.getIndex(catgr)
+	input, err := readInput("Enter new category name: ", false)
+	if err != nil {
+		return err
+	}
 
-	if index == -1 {
-		msg := fmt.Sprintf("No such category as `%s`\n", catgr)
+	if _, err := jd.getIndex(input); err == nil {
+		msg := fmt.Sprintf("Category named `%s` already exists", input)
 		return errors.New(msg)
 	}
 
-	input := readInput("Enter new category name: ")
-	if index := jd.getIndex(input); index != -1 {
-		msg := fmt.Sprintf("Category named `%s` already exists\n", input)
-		return errors.New(msg)
-	}
-
-	jd.Categories[index].Name = input
+	jd.ModifyCategory(index, input)
 
 	err = writeJSONData(jd)
 	if err != nil {
@@ -35,40 +31,35 @@ func modifyCategory(catgr string) error {
 	return nil
 }
 
-func modifyCommand(catgr string) error {
-	jd, err := readJSONData()
+func modifyCommand(jd jsonData, catgr string) error {
+	index, err := jd.getIndex(catgr)
 	if err != nil {
 		return err
 	}
 
-	index := jd.getIndex(catgr)
-
-	if index == -1 {
-		msg := fmt.Sprintf("No such category as `%s`\n", catgr)
-		return errors.New(msg)
-	}
-
-	err2 := displayCommands(jd, catgr, true, true)
-	if err2 != nil {
-		return err2
+	err = displayCommands(jd, catgr, true)
+	if err != nil {
+		return err
 	}
 
 	fmt.Println()
-	input := readInput("Select Serial no: ")
-	sno, err2 := strconv.Atoi(input)
-	if err2 != nil {
-		return err2
-	} else if sno < 1 || sno > len(jd.Categories[index].Commands) {
-		return errors.New("Invalid Serial no")
+	sno, err := readSerialNo(len(jd.Categories[index].Commands))
+	if err != nil {
+		return err
 	}
 
 	fmt.Println("Previous name:", jd.Categories[index].Commands[sno-1].Name)
-	name := readInput("Enter new name: ")
+	name, err := readInput("Enter new name: ", false)
+	if err != nil {
+		return err
+	}
 	fmt.Println("Previous use:", jd.Categories[index].Commands[sno-1].Use)
-	use := readInput("Enter new use: ")
+	use, err := readInput("Enter new use (opt): ", true)
+	if err != nil {
+		return err
+	}
 
-	jd.Categories[index].Commands[sno-1].Name = name
-	jd.Categories[index].Commands[sno-1].Use = use
+	jd.ModifyCommand(index, sno-1, name, use)
 
 	err = writeJSONData(jd)
 	if err != nil {

@@ -6,12 +6,18 @@ import (
 	"os"
 )
 
-var jsonFileName = "komi.json"
-var jsonFilePath = "/home/" + os.Getenv("USER") + "/" + jsonFileName
+var jsonFilePath = os.Getenv("KOMI_DATA_FILE")
+
+func init() {
+	// If Env Variable not set
+	if jsonFilePath == "" {
+		jsonFilePath = "/home/" + os.Getenv("USER") + "/komi.json"
+	}
+}
 
 // Read and parse json data from `jsonFilePath`
 // If an error occurs, return it
-func readJSONData() (jsonData, *jsonFileError) {
+func readJSONData() (jsonData, error) {
 	jd := jsonData{}
 
 	content, err := ioutil.ReadFile(jsonFilePath)
@@ -21,7 +27,7 @@ func readJSONData() (jsonData, *jsonFileError) {
 
 	err = json.Unmarshal(content, &jd)
 	if err != nil {
-		return jd, &jsonFileError{err, "Error parsing JSON. File: " + jsonFilePath}
+		return jd, &jsonFileError{err, "Error parsing JSON file: " + jsonFilePath}
 	}
 
 	return jd, nil
@@ -29,10 +35,10 @@ func readJSONData() (jsonData, *jsonFileError) {
 
 // Parse and write json data to `jsonFilePath`
 // If an error occurs, return it
-func writeJSONData(jd jsonData) *jsonFileError {
+func writeJSONData(jd jsonData) error {
 	content, err := json.Marshal(jd)
 	if err != nil {
-		return &jsonFileError{err, "Error parsing JSON. File: " + jsonFilePath}
+		return &jsonFileError{err, "Error parsing JSON file: " + jsonFilePath}
 	}
 
 	err = ioutil.WriteFile(jsonFilePath, content, 0666)
