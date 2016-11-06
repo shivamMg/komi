@@ -13,3 +13,6 @@ datadir="/home/$USER/.komi"
 mkdir $datadir
 cp _data/komi.json $datadir
 echo export KOMI_DATA_DIR="$datadir" >> ~/.bashrc
+
+# bash autocomplete
+sudo cp _data/bash_autocomplete /etc/bash_completion.d/komi

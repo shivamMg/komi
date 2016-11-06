@@ -13,9 +13,11 @@ Features:
 
 ```bash
 git clone git@github.com:shivamMg/komi.git
+cd komi
 git checkout temp-br
 ./install.sh
 source ~/.bashrc
+source /etc/bash_completion.d/komi
 ```
 
 `install.sh` does the following:
@@ -32,9 +34,10 @@ source ~/.bashrc
    export KOMI_DATA_DIR="/home/$USER/.komi"
    ```
 
-You can then source your `.bashrc` to update your current shell.
+You can then source your `.bashrc` and komi bash completion script to update your current shell.
 ```bash
 source ~/.bashrc
+source /etc/bash_completion.d/komi
 ```
 
 ## Installation (with go)
