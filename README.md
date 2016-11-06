@@ -9,6 +9,20 @@ Features:
 - Searching for string (includes case-insensitive search)
 - Exporting data file
 
+## Dependency
+
+If you're on Linux, you would need the `xclip` package for copying commands. On Debian/Ubuntu you can install it with:
+
+```bash
+sudo apt-get install xclip
+```
+
+Also note, if you're using `komi copy` command via ssh on a remote linux machine, you would need to enable X11 forwarding. You can do by adding the `-X` flag:
+
+```bash
+ssh <user>@<ip> -X
+```
+
 ## Installation (without go)
 
 ```bash
@@ -33,6 +47,7 @@ source /etc/bash_completion.d/komi
    ```bash
    export KOMI_DATA_DIR="/home/$USER/.komi"
    ```
+5. Copies the bash completion script to `/etc/bash_completion.d/`.
 
 You can then source your `.bashrc` and komi bash completion script to update your current shell.
 ```bash
@@ -46,5 +61,7 @@ source /etc/bash_completion.d/komi
 go get github.com/shivammg/komi
 mkdir /home/$USER/.komi
 echo export KOMI_DATA_DIR="/home/$USER/.komi" >> ~/.bashrc
+sudo cp _data/bash_autocomplete /etc/bash_completion.d/komi
 source ~/.bashrc
+source /etc/bash_completion.d/komi
 ```
