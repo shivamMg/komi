@@ -2,6 +2,8 @@
 
 `komi` is a simple command saver with the ability to group commands in categories so they can be retrieved easily. Commands and their uses can be added, modified and deleted. They can quickly be copied to the system clipboard. All the data is saved in a JSON file which can be exported.
 
+[![komi demo](https://asciinema.org/a/92201.png)](https://asciinema.org/a/92201)
+
 Features:
 
 - Bash completion for categories
