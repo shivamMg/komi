@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 if [ "$(uname -s)" == "Linux" ]; then
-    sudo cp _linux_amd64/komi /usr/local/bin/
+    sudo cp data/bin/linux_amd64 /usr/local/bin/komi
 elif [ "$(uname)" == "Darwin" ]; then
-    sudo cp _darwin_amd64/komi /usr/local/bin/
+    sudo cp data/bin/darwin_amd64 /usr/local/bin/komi
 else
     echo "Unknown Operating System"
     exit 1
@@ -11,8 +11,8 @@ fi
 
 datadir="/home/$USER/.komi"
 mkdir $datadir
-cp _data/komi.json $datadir
-echo export KOMI_DATA_DIR="$datadir" >> ~/.bashrc
+# Copy example data file
+cp data/komi.json $datadir
 
 # bash autocomplete
-sudo cp _data/bash_autocomplete /etc/bash_completion.d/komi
+sudo cp data/bash_autocomplete /etc/bash_completion.d/komi

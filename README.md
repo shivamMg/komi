@@ -23,45 +23,58 @@ Also note, if you're using `komi copy` command via ssh on a remote linux machine
 ssh <user>@<ip> -X
 ```
 
-## Installation (without go)
+## Installation
+
+The default data directory is kept as:
+
+```
+/home/$USER/.komi
+```
+
+If you want a different data directory, you can export `KOMI_DATA_DIR` env variable to that directory.
+
+```bash
+export KOMI_DATA_DIR="/home/$USER/diff_komi"
+```
+
+**Note**: If specifying data dir through env var, make sure to include the export statement in your `.bashrc`.
+
+
+### Installation with Go
+
+```bash
+go get github.com/shivammg/komi
+sudo cp data/bash_autocomplete /etc/bash_completion.d/komi
+source /etc/bash_completion.d/komi
+
+# If you want to see the example data file (Optional)
+mkdir /home/$USER/.komi
+cp data/komi.json /home/$USER/.komi/komi.json
+```
+
+### Installation without Go
 
 ```bash
 git clone git@github.com:shivamMg/komi.git
 cd komi
-git checkout temp-br
 ./install.sh
-source ~/.bashrc
 source /etc/bash_completion.d/komi
 ```
 
 `install.sh` does the following:
 
-1. Copies one of the following binaries to `/usr/local/bin` according to the platform. Other platforms are not supported.
-   - [linux/amd64](_linux_amd64/komi)
-   - [darwin/amd64](_darwin_amd64/komi)
+1. Copies one of the following binaries to `/usr/local/bin` according to the platform. Binaries for other platforms are not included.
+   - [linux/amd64](data/bin/linux_amd64)
+   - [darwin/amd64](data/bin/darwin_amd64)
 
    **Note**: This requires sudo permissions.
-2. Creates data directory for komi.
-3. Copies example data file from `_data` directory.
-4. Appends the following line to your `~/.bashrc`:
-   ```bash
-   export KOMI_DATA_DIR="/home/$USER/.komi"
-   ```
-5. Copies the bash completion script to `/etc/bash_completion.d/`.
+2. Creates data directory at `/home/$USER/.komi` and copies example data file from `data/komi.json`.
+3. Copies the bash completion script to `/etc/bash_completion.d/`.
+   **Note**: This also requires sudo permissions.
 
-You can then source your `.bashrc` and komi bash completion script to update your current shell.
+You can then source your komi bash completion script to update your current shell.
+
 ```bash
-source ~/.bashrc
 source /etc/bash_completion.d/komi
 ```
 
-## Installation (with go)
-
-```bash
-go get github.com/shivammg/komi
-mkdir /home/$USER/.komi
-echo export KOMI_DATA_DIR="/home/$USER/.komi" >> ~/.bashrc
-sudo cp _data/bash_autocomplete /etc/bash_completion.d/komi
-source ~/.bashrc
-source /etc/bash_completion.d/komi
-```
